@@ -53,4 +53,4 @@ jobs:
             cd /var/www/pandemonium_api
             git pull origin main
             go build -o pandemonium_api
-            pm2 restart myapi || pm2 start myapi --name pandemonium_api
+            pm2 restart pandemonium_api || pm2 start pandemoniumAPI --name pandemonium_api
