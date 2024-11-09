@@ -1,8 +1,8 @@
 module pandemonium_api
 
-go 1.22
+go 1.19
 
-toolchain go1.22
+toolchain go1.19
 
 require (
 	cloud.google.com/go/speech v1.25.2
