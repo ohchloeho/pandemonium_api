@@ -18,6 +18,27 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: '1.19'
+      
+      - name: Verify Go version
+        run: go version
+  
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Clean Go module cache
+        run: go clean -modcache
+
+      - name: Upgrade dependencies
+        run: go get -u ./...
+
+      - name: Tidy up Go modules
+        run: go mod tidy
+
+      - name: Build
+        run: go build ./...
+
+      - name: Run Tests
+        run: go test ./...
 
       # Adjust build command to target the main.go file in /cmd/server
       - name: Build
