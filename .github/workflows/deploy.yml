@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - test  # Include test branch for running build and tests only
 
 jobs:
   build-and-test:
@@ -18,15 +19,18 @@ jobs:
         with:
           go-version: '1.18'
 
+      # Adjust build command to target the main.go file in /cmd/server
       - name: Build
-        run: go build -v
+        run: go build -v ./cmd/server
 
+      # Run tests in the project
       - name: Run tests
-        run: go test ./...
+        run: go test -v ./...  # Runs tests recursively in all subdirectories
 
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-test
+    if: github.ref == 'refs/heads/main' 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -52,5 +56,5 @@ jobs:
           script: |
             cd /var/www/pandemonium_api
             git pull origin main
-            go build -o pandemonium_api
-            pm2 restart pandemonium_api || pm2 start pandemoniumAPI --name pandemonium_api
+            go build -o pandemonium_api ./cmd/server  # Build from /cmd/server
+            pm2 restart pandemonium_api || pm2 start pandemonium_api --name pandemonium_api
