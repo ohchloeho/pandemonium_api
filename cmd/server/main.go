@@ -1,34 +1,26 @@
 package main
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
+    "log"
+    "pandemonium_api/internal/database"
+	"pandemonium_api/api"
 )
 
-// Response structure for the API
-type Response struct {
-	Message string `json:"message"`
-}
-
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	// Set content type to JSON
-	w.Header().Set("Content-Type", "application/json")
-
-	// Create a response object
-	response := Response{Message: "Hello, World!"}
-
-	// Encode response to JSON and write it
-	json.NewEncoder(w).Encode(response)
-}
-
 func main() {
-	// Register the /hello endpoint
-	http.HandleFunc("/hello", helloHandler)
+    db, err := database.NewDB()
+    if err != nil {
+        log.Fatalf("Could not connect to MongoDB: %v", err)
+    }
+    defer db.Close()
+	// Set up the routes with the database connection
+	router := api.SetupRouter(db.Database)
 
-	// Start the server on port 8080
+	// Start the server
 	log.Println("Starting server on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatalf("Server failed: %s", err)
+	if err := router.Run(":8080"); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
 	}
+
+    // Pass db.Database to other parts of your application, like your services
+    log.Println("MongoDB setup complete, proceeding with application startup.")
 }
