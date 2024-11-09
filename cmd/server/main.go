@@ -1,26 +1,30 @@
 package main
 
 import (
-    "log"
-    "pandemonium_api/internal/database"
+	"context"
+	"log"
 	"pandemonium_api/api"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
-    db, err := database.NewDB()
-    if err != nil {
-        log.Fatalf("Could not connect to MongoDB: %v", err)
-    }
-    defer db.Close()
-	// Set up the routes with the database connection
-	router := api.SetupRouter(db.Database)
-
-	// Start the server
-	log.Println("Starting server on :8080")
-	if err := router.Run(":8080"); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
+	// MongoDB client setup
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-    // Pass db.Database to other parts of your application, like your services
-    log.Println("MongoDB setup complete, proceeding with application startup.")
+	// Connect to a specific database
+	db := client.Database("Pandemonium")
+
+	// Initialize the Gin router
+	router := api.SetupRouter(db)
+
+	// Start the server
+	if err := router.Run(":8080"); err != nil {
+		log.Fatal("Unable to start server: ", err)
+	}
 }
