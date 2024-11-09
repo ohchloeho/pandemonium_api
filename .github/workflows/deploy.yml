@@ -69,7 +69,23 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            # Go to the correct directory and pull the latest changes
             cd /var/www/pandemonium_api
             git pull origin main
-            go build -o pandemonium_api ./cmd/server  # Build from /cmd/server
-            pm2 restart pandemonium_api || pm2 start pandemonium_api --name pandemonium_api
+
+            # Check for git status to ensure it's up-to-date
+            git status
+
+            # Build the binary again just in case
+            go build -o pandemonium_api ./cmd/server
+
+            # Verify the binary is built and executable
+            ls -l pandemonium_api
+            chmod +x pandemonium_api
+
+            # Restart or start the PM2 process
+            pm2 list
+            pm2 reload pandemonium_api || pm2 start pandemonium_api --name pandemonium_api
+
+            # Check PM2 logs
+            pm2 logs pandemonium_api
