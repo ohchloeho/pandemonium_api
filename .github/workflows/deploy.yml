@@ -14,38 +14,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Go 1.22
-        uses: actions/setup-go@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up Docker Cache
+        uses: actions/cache@v2
         with:
-          go-version: '1.22'
-      
-      - name: Verify Go version
-        run: go version
-  
-      - name: Install dependencies
-        run: go mod download
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-build-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-build-
 
-      - name: Clean Go module cache
-        run: go clean -modcache
+      - name: Build Docker image
+        run: |
+          docker build -t pandemonium_api .
 
-      - name: Upgrade dependencies
-        run: go get -u ./...
+      - name: Log in to Docker Hub (optional, if you want to push to Docker Hub)
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Tidy up Go modules
-        run: go mod tidy
-
-      - name: Build
-        run: go build ./cmd/server/main.go
-
-      # Adjust build command to target the main.go file in /cmd/server
-      - name: Build
-        run: go build -v ./cmd/server
-
+      - name: Push Docker image to Docker Hub (optional)
+        run: |
+          docker tag pandemonium_api ${{ secrets.DOCKER_USERNAME }}/pandemonium_api:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/pandemonium_api:latest
 
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-test
-    if: github.ref == 'refs/heads/main' 
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -54,38 +52,30 @@ jobs:
       - name: Install Tailscale
         run: |
           curl -fsSL https://tailscale.com/install.sh | sh
-          sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }}  # Use the auth key to connect
+          sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }}
 
       # Ensure Tailscale is connected before proceeding
       - name: Verify Tailscale connection
         run: |
           sudo tailscale status
 
-      # Deploy to Server via SSH (Tailscale)
-      - name: Deploy to Server via SSH (Tailscale)
+      # SSH into the server and run the Docker commands
+      - name: Deploy Docker container to Server via SSH (Tailscale)
         uses: appleboy/ssh-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_TAILSCALE_IP }}  # Use the Tailscale IP of your server
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Go to the correct directory and pull the latest changes
-            cd /var/www/pandemonium_api
-            git pull origin main
+            # Log in to Docker (if using a private registry like Docker Hub)
+            echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
-            # Check for git status to ensure it's up-to-date
-            git status
+            # Pull the latest Docker image (optional if you use Docker Hub)
+            docker pull ${{ secrets.DOCKER_USERNAME }}/pandemonium_api:latest
 
-            # Build the binary again just in case
-            go build -o pandemonium_api ./cmd/server
+            # Stop the currently running container (if it exists)
+            docker stop pandemonium_api || true
+            docker rm pandemonium_api || true
 
-            # Verify the binary is built and executable
-            ls -l pandemonium_api
-            chmod +x pandemonium_api
-
-            # Restart or start the PM2 process
-            pm2 list
-            pm2 reload pandemonium_api || pm2 start pandemonium_api --name pandemonium_api
-
-            # Check PM2 logs
-            pm2 logs pandemonium_api
+            # Run the new Docker container
+            docker run -d --name pandemonium_api -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/pandemonium_api:latest
