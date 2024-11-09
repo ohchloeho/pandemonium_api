@@ -18,13 +18,13 @@ func main() {
 	}
 
 	// Connect to a specific database
-	db := client.Database("Pandemonium")
+	db := client.Database("pandaDB")
 
 	// Initialize the Gin router
 	router := api.SetupRouter(db)
 
 	// Start the server
-	if err := router.Run("0.0.0.0:8080"); err != nil {
+	if err := router.Run(":8080"); err != nil {
 		log.Fatal("Unable to start server: ", err)
 	}
 }
