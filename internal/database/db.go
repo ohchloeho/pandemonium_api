@@ -22,7 +22,7 @@ func NewDB() (*DB, error) {
 	defer cancel()
 
 	// Set client options
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://mongo:27017")
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(ctx, clientOptions)
