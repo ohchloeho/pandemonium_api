@@ -78,4 +78,4 @@ jobs:
             docker rm pandemonium_api || true
 
             # Run the new Docker container
-            docker run -d --name pandemonium_api -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/pandemonium_api:latest
+            docker run -d --name pandemonium_api --network pandemonium_network -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/pandemonium_api:latest
