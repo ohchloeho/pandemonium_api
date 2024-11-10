@@ -42,6 +42,8 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 	voiceNoteHandler := handlers.NewVoiceNoteHandler(voiceNoteService)
 
 	// Define your routes
+	router.GET("/projects", projectHandler.GetAllProjects)
+	router.GET("/projects/:id", projectHandler.GetProject)
 	router.POST("/projects", projectHandler.CreateProject)
 	router.POST("/projects/:id/voice-note", voiceNoteHandler.AddVoiceNoteToProject)
 

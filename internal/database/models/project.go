@@ -8,4 +8,6 @@ type Project struct {
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
 	CreatedBy   string    `json:"createdBy"`
+	Markdown    string    `json:"markdown"`
+	VoiceNotes  []VoiceNote
 }

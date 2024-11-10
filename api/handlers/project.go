@@ -6,6 +6,7 @@ import (
 	"pandemonium_api/internal/services"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ProjectHandler struct {
@@ -39,6 +40,39 @@ func (h *ProjectHandler) CreateProject(c *gin.Context) {
 		return
 	}
 
-	// Respond with a success status and the created project information
 	c.JSON(http.StatusCreated, gin.H{"status": "project created", "project": createdProject})
+}
+
+// Get ALL projects
+func (h *ProjectHandler) GetAllProjects(c *gin.Context) {
+	// Call the service to retrieve all projects
+	projects, err := h.projectService.GetAllProjects()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve projects"})
+		return
+	}
+
+	c.JSON(http.StatusOK, projects)
+}
+
+// Get Single Project
+func (h *ProjectHandler) GetProject(c *gin.Context) {
+	// Get the project ID from the URL parameter
+	projectID := c.Param("id")
+
+	// Convert the project ID to a MongoDB ObjectID
+	objectID, err := primitive.ObjectIDFromHex(projectID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
+		return
+	}
+
+	// Use the project service to retrieve the project record from the database
+	project, err := h.projectService.GetProject(objectID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve project"})
+		return
+	}
+
+	c.JSON(http.StatusOK, project)
 }
