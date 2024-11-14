@@ -44,10 +44,7 @@ func UploadToNextcloudMiddleware(c *gin.Context) {
 func UploadToNextcloud(filename string, content string) error {
 	nextcloudUsername := os.Getenv("NEXTCLOUD_USERNAME")
 	nextcloudPassword := os.Getenv("NEXTCLOUD_PASSWORD")
-	nextcloudBaseURL := os.Getenv("NEXTCLOUD_BASE_URL")
-	if nextcloudBaseURL == "" {
-		nextcloudBaseURL = "http://localhost:80/nextcloud/remote.php/dav/files/"
-	}
+	nextcloudBaseURL := "http://127.0.0.1/nextcloud/remote.php/dav/files/"
 
 	// Ensure that Nextcloud credentials are not empty
 	if nextcloudUsername == "" || nextcloudPassword == "" {
