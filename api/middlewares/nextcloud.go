@@ -46,7 +46,7 @@ func UploadToNextcloud(filename string, content string) error {
 	nextcloudPassword := os.Getenv("NEXTCLOUD_PASSWORD")
 	nextcloudBaseURL := os.Getenv("NEXTCLOUD_BASE_URL")
 	if nextcloudBaseURL == "" {
-		nextcloudBaseURL = "http://localhost/nextcloud/remote.php/dav/files/"
+		nextcloudBaseURL = "http://localhost:80/nextcloud/remote.php/dav/files/"
 	}
 
 	// Ensure that Nextcloud credentials are not empty
