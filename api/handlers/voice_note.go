@@ -25,8 +25,7 @@ func (h *VoiceNoteHandler) AddVoiceNoteToProject(c *gin.Context) {
         // Handle the error, for example:
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid project ID"})
         return
-    }
-    note.ProjectID = projectIDInt
+    }    
     
     note.ProjectID = projectIDInt // Assign to the correct project
     h.voiceNoteService.AddVoiceNoteToProject(projectID, note.Content)
