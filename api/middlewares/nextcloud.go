@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,10 +54,7 @@ func UploadToNextcloud(filename string, content string) error {
 		return fmt.Errorf("Nextcloud credentials are not set properly")
 	}
 
-	// Clean up username and filename (no double slashes)
-	nextcloudUsername = strings.TrimRight(nextcloudUsername, "/")
-	filename = strings.TrimLeft(filename, "/")
-	nextcloudURL := nextcloudBaseURL + "/" + nextcloudUsername + "/" + filename
+	nextcloudURL := nextcloudBaseURL + nextcloudUsername + "/" + filename
 
 	// Create a new HTTP PUT request
 	req, err := http.NewRequest("PUT", nextcloudURL, bytes.NewBuffer([]byte(content)))
