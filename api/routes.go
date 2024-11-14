@@ -3,6 +3,7 @@ package api
 import (
 	"pandemonium_api/api/handlers"
 	"pandemonium_api/internal/services"
+	"pandemonium_api/api/middlewares"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -27,6 +28,8 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 	router.GET("/projects/:id", projectHandler.GetProject)
 	router.POST("/projects", projectHandler.CreateProject)
 	router.POST("/projects/:id/voice-note", voiceNoteHandler.AddVoiceNoteToProject)
+
+	router.PUT("/ping-nc", middlewares.UploadToNextcloudMiddleware)
 
 	return router
 }

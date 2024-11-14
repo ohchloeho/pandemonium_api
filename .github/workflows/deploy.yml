@@ -26,6 +26,9 @@ jobs:
             ${{ runner.os }}-build-
 
       - name: Build Docker image
+        env:
+          NEXTCLOUD_USERNAME: ${{ secrets.NEXTCLOUD_USERNAME }}
+          NEXTCLOUD_PASSWORD: ${{ secrets.NEXTCLOUD_PASSWORD }}
         run: |
           docker build -t pandemonium_api .
 
