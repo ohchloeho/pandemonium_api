@@ -13,14 +13,14 @@ RUN go mod tidy
 # Copy the source code into the container
 COPY . .
 
-ENV NEXTCLOUD_USERNAME=${NEXTCLOUD_USERNAME}
-ENV NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
-
 # Build the Go binary
 RUN go build -o pandemonium_api ./cmd/server
 
 # Use a newer Debian image or Ubuntu image with GLIBC 2.34+ for the runtime
 FROM ubuntu:latest 
+
+ENV NEXTCLOUD_USERNAME=${NEXTCLOUD_USERNAME}
+ENV NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
 
 # Install necessary libraries (glibc and others)
 RUN apt-get update && apt-get install -y libc6
