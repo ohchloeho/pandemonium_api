@@ -43,7 +43,7 @@ func UploadToNextcloud(filename string, content string) error {
     nextcloudUsername := os.Getenv("NEXTCLOUD_USERNAME")
     nextcloudPassword := os.Getenv("NEXTCLOUD_PASSWORD")
     nextcloudBaseURL := "http://localhost/nextcloud/remote.php/dav/files/" + nextcloudUsername + "/"
-
+    fmt.Println(nextcloudBaseURL)
     // Define the Nextcloud URL for the WebDAV request
     nextcloudURL := nextcloudBaseURL + filename
 
