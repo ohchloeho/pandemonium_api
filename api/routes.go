@@ -29,7 +29,7 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 	router.POST("/projects", projectHandler.CreateProject)
 	router.POST("/projects/:id/voice-note", voiceNoteHandler.AddVoiceNoteToProject)
 
-	router.PUT("/ping-nc", middlewares.UploadToNextcloudMiddleware)
+	router.POST("/ping-nc", middlewares.UploadToNextcloudMiddleware)
 
 	return router
 }
