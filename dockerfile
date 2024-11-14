@@ -13,6 +13,9 @@ RUN go mod tidy
 # Copy the source code into the container
 COPY . .
 
+ENV NEXTCLOUD_USERNAME=${NEXTCLOUD_USERNAME}
+ENV NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
+
 # Build the Go binary
 RUN go build -o pandemonium_api ./cmd/server
 
