@@ -32,7 +32,7 @@ WORKDIR /app
 COPY --from=builder /app/pandemonium_api /app/
 
 # Expose the port your app will be listening on
-EXPOSE 8080
+EXPOSE 1883 8080
 
 # Set the command to run your Go binary
 CMD ["/app/pandemonium_api"]
