@@ -24,6 +24,10 @@ ENV NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
 
 # Install necessary libraries (glibc and others)
 RUN apt-get update && apt-get install -y libc6
+RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
+
+# Expose the port your app will be listening on
+EXPOSE 1883 8080
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -31,8 +35,7 @@ WORKDIR /app
 # Copy the compiled binary from the builder stage
 COPY --from=builder /app/pandemonium_api /app/
 
-# Expose the port your app will be listening on
-EXPOSE 1883 8080
+CMD ["sh", "-c", "mosquitto -d && /app/pandemonium_api"]
 
-# Set the command to run your Go binary
-CMD ["/app/pandemonium_api"]
+
+
