@@ -75,9 +75,6 @@ func (s *ProjectService) GetAllProjects() ([]*models.Project, error) {
 	if err := cur.All(ctx, &projects); err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
 	return projects, nil
 }
 

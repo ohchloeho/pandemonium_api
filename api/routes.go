@@ -25,7 +25,7 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 	// MQTT
 	mqttHandler := handlers.NewMQTTHandler()
 	topics := []string{"test/topic", "projects/updates"}
-	mqttService := services.NewMQTTService("tcp://localhost:1883", "go_mqtt_listener_client", topics, mqttHandler.HandleMessage)
+	mqttService := services.NewMQTTService("tcp://host.docker.internal:1883", "mqtt_api_client", topics, mqttHandler.HandleMessage)
 	defer mqttService.Close()
 
 	// Routes

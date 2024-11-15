@@ -28,11 +28,9 @@ func NewMQTTHandler() *MQTTHandler {
 
 // HandleMessage processes incoming MQTT messages
 func (h *MQTTHandler) HandleMessage(client mqtt.Client, msg mqtt.Message) {
-	// Parse message topic and payload
 	topic := msg.Topic()
 	payload := string(msg.Payload())
 
-	// Log the received message
 	fmt.Printf("Received message on topic %s: %s\n", topic, payload)
 
 	// Example of message format: "create|filename|file_contents" for file creation
@@ -76,8 +74,6 @@ func (h *MQTTHandler) HandleMessage(client mqtt.Client, msg mqtt.Message) {
 
 // createFile creates a file in Nextcloud
 func (h *MQTTHandler) createFile(filename, contents string) error {
-	// Use WebDAV to create a file in Nextcloud
-	// WebDAV path: "/remote.php/webdav/"
 	path := "/remote.php/webdav/files/" + filename
 
 	// Write the contents to Nextcloud
@@ -90,8 +86,6 @@ func (h *MQTTHandler) createFile(filename, contents string) error {
 
 // readFile reads a file from Nextcloud
 func (h *MQTTHandler) readFile(filename string) (string, error) {
-	// Use WebDAV to read a file from Nextcloud
-	// WebDAV path: "/remote.php/webdav/"
 	path := "/remote.php/webdav/files/" + filename
 
 	data, err := h.nextcloudClient.Read(path)
