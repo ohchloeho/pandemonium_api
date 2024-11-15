@@ -46,7 +46,7 @@ func UploadToNextcloud(filename string, content string) error {
 	nextcloudPassword := os.Getenv("NEXTCLOUD_PASSWORD")
 	nextcloudBaseURL := "http://100.127.215.78/nextcloud/remote.php/dav/files/"
 
-	nextcloudURL := nextcloudBaseURL + nextcloudUsername + "/" + filename
+	nextcloudURL := nextcloudBaseURL + nextcloudUsername + "/mindfuel/" + filename
 
 	// Create a new HTTP PUT request
 	req, err := http.NewRequest("PUT", nextcloudURL, bytes.NewBuffer([]byte(content)))
