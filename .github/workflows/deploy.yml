@@ -69,6 +69,7 @@ jobs:
         run: |
           sudo tailscale status
 
+
       # Step 5: SSH into the server, stop any running container, and deploy the new container
       - name: Deploy Docker container to Server via SSH (Tailscale)
         uses: appleboy/ssh-action@v0.1.7
@@ -84,8 +85,7 @@ jobs:
             docker stop pandemonium_api || true
             docker rm pandemonium_api || true
 
-            docker run -d --name pandemonium_api --network pandemonium_network -p 8080:8080 -p 1883:1883 \
-              -e NEXTCLOUD_USERNAME=${{ secrets.NEXTCLOUD_USERNAME }} \
-              -e NEXTCLOUD_PASSWORD=${{ secrets.NEXTCLOUD_PASSWORD }} \
-              ${{ secrets.DOCKER_USERNAME }}/pandemonium_api:latest
-
+            docker run -d --name pandemonium_api --network host \
+            -e NEXTCLOUD_USERNAME=${{ secrets.NEXTCLOUD_USERNAME }} \
+            -e NEXTCLOUD_PASSWORD=${{ secrets.NEXTCLOUD_PASSWORD }} \
+            ${{ secrets.DOCKER_USERNAME }}/pandemonium_api:latest

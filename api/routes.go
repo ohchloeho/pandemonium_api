@@ -24,7 +24,7 @@ func SetupRouter() *gin.Engine {
 	// MQTT
 	mqttHandler := handlers.NewMQTTHandler()
 	topics := []string{"test/topic", "projects/updates"}
-	services.NewMQTTService("tcp://192.168.8.214:1883", "mqtt_api_client", topics, mqttHandler.HandleMessage)
+	services.NewMQTTService("tcp://127.0.0.1:1883", "mqtt_api_client", topics, mqttHandler.HandleMessage)
 
 	// Routes
 	// router.GET("/projects", projectHandler.GetAllProjects)
