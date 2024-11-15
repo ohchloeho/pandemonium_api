@@ -10,11 +10,12 @@ import (
 	"github.com/studio-b12/gowebdav"
 )
 
+// MQTTHandler handles the incoming MQTT messages.
 type MQTTHandler struct {
 	nextcloudClient *gowebdav.Client
 }
 
-// NewMQTTHandler initializes an MQTT handler with optional dependencies
+// NewMQTTHandler creates a new instance of MQTTHandler.
 func NewMQTTHandler() *MQTTHandler {
 	nextcloudUsername := os.Getenv("NEXTCLOUD_USERNAME")
 	nextcloudPassword := os.Getenv("NEXTCLOUD_PASSWORD")
@@ -26,16 +27,14 @@ func NewMQTTHandler() *MQTTHandler {
 	}
 }
 
-// HandleMessage processes incoming MQTT messages
+// HandleMessage is called whenever an MQTT message is received.
 func (h *MQTTHandler) HandleMessage(client mqtt.Client, msg mqtt.Message) {
 	topic := msg.Topic()
 	payload := string(msg.Payload())
 
 	fmt.Printf("Received message on topic %s: %s\n", topic, payload)
 
-	// Example of message format: "create|filename|file_contents" for file creation
-	// or "read|filename" for reading a file
-
+	// Process the message based on its command (create, read, etc.)
 	parts := strings.Split(payload, "|")
 	if len(parts) < 2 {
 		log.Printf("Invalid message format: %s", payload)
@@ -72,7 +71,7 @@ func (h *MQTTHandler) HandleMessage(client mqtt.Client, msg mqtt.Message) {
 	}
 }
 
-// createFile creates a file in Nextcloud
+// createFile creates a file in Nextcloud.
 func (h *MQTTHandler) createFile(filename, contents string) error {
 	path := "/remote.php/webdav/files/" + filename
 
@@ -84,7 +83,7 @@ func (h *MQTTHandler) createFile(filename, contents string) error {
 	return nil
 }
 
-// readFile reads a file from Nextcloud
+// readFile reads a file from Nextcloud.
 func (h *MQTTHandler) readFile(filename string) (string, error) {
 	path := "/remote.php/webdav/files/" + filename
 

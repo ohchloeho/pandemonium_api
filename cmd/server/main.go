@@ -16,10 +16,10 @@ func initDB() *database.DB {
 
 func main() {
 	// Initialize MongoDB
-	db := initDB()
-	defer db.Close()
+	// db := initDB()
+	// defer db.Close()
 
-	router := api.SetupRouter(db.Database)
+	router := api.SetupRouter()
 
 	// Set trusted proxies to allow only specific IPs (e.g., your Apache server's IP
 	err := router.SetTrustedProxies([]string{"127.0.0.1"})

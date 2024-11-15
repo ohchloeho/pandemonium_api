@@ -10,29 +10,44 @@ type MQTTService struct {
 	client mqtt.Client
 }
 
-// NewMQTTService initializes a new MQTT service and connects to the broker
-func NewMQTTService(broker string, clientID string, topics []string, messageHandler mqtt.MessageHandler) *MQTTService {
-	opts := mqtt.NewClientOptions().AddBroker(broker).SetClientID(clientID)
+// NewMQTTService creates and initializes a new MQTT client, subscribes to topics, and starts the message handler.
+func NewMQTTService(brokerURL, clientID string, topics []string, messageHandler mqtt.MessageHandler) *MQTTService {
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker(brokerURL)
+	opts.SetClientID(clientID)
+	opts.SetDefaultPublishHandler(messageHandler)
+
 	client := mqtt.NewClient(opts)
-
-	// Connect to the broker
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		log.Fatalf("Error connecting to MQTT broker: %v", token.Error())
+		log.Fatalf("Failed to connect to broker: %v", token.Error())
 	}
+	log.Println("Connected to MQTT broker")
 
-	// Subscribe to each topic with the provided message handler
 	for _, topic := range topics {
-		token := client.Subscribe(topic, 0, messageHandler)
-		token.Wait()
-		if token.Error() != nil {
-			log.Fatalf("Failed to subscribe to topic %s: %v", topic, token.Error())
+		if token := client.Subscribe(topic, 0, nil); token.Wait() && token.Error() != nil {
+			log.Printf("Failed to subscribe to topic %s: %v", topic, token.Error())
+		} else {
+			log.Printf("Subscribed to topic %s", topic)
 		}
 	}
 
-	return &MQTTService{client: client}
+	return &MQTTService{
+		client: client,
+	}
 }
 
-// Close disconnects the MQTT client
+// Start keeps the client alive and blocks indefinitely to process incoming messages.
+func (s *MQTTService) Start() {
+	log.Println("MQTT Service started, waiting for messages...")
+	s.client.Connect().Wait()
+}
+
+// Close gracefully disconnects from the MQTT broker.
 func (s *MQTTService) Close() {
-	s.client.Disconnect(250)
+	if s.client.IsConnected() {
+		s.client.Disconnect(250)
+		log.Println("Disconnected from MQTT broker")
+	} else {
+		log.Println("MQTT client is already disconnected")
+	}
 }

@@ -6,10 +6,9 @@ import (
 	"pandemonium_api/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func SetupRouter(db *mongo.Database) *gin.Engine {
+func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
 	router.GET("/ping", func(c *gin.Context) {
@@ -25,8 +24,7 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 	// MQTT
 	mqttHandler := handlers.NewMQTTHandler()
 	topics := []string{"test/topic", "projects/updates"}
-	mqttService := services.NewMQTTService("tcp://host.docker.internal:1883", "mqtt_api_client", topics, mqttHandler.HandleMessage)
-	defer mqttService.Close()
+	services.NewMQTTService("tcp://localhost:1883", "mqtt_api_client", topics, mqttHandler.HandleMessage)
 
 	// Routes
 	// router.GET("/projects", projectHandler.GetAllProjects)
