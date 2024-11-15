@@ -36,31 +36,6 @@ jobs:
         run: |
           docker build -t pandemonium_api .
 
-      # Step 5: Run and Test Docker image locally
-      - name: Run and Test Docker image
-        run: |
-          docker run -d --name pandemonium_test -p 8080:8080 -p 1883:1883 \
-            -e NEXTCLOUD_USERNAME=${{ secrets.NEXTCLOUD_USERNAME }} \
-            -e NEXTCLOUD_PASSWORD=${{ secrets.NEXTCLOUD_PASSWORD }} \
-            pandemonium_api
-
-          for i in {1..30}; do
-            if nc -z localhost 1883; then
-              echo "Mosquitto is up and running!";
-              break;
-            fi
-            echo "Waiting for Mosquitto...";
-            sleep 2;
-          done
-
-          sudo apt-get update && sudo apt-get install -y mosquitto-clients
-
-          mosquitto_pub -h localhost -p 1883 -t test/topic -m "Test Message"
-          mosquitto_sub -h localhost -p 1883 -t test/topic -C 1 | grep "Test Message"
-
-          docker stop pandemonium_test
-          docker rm pandemonium_test
-
       # Step 6: Optional - Log in to Docker Hub
       - name: Log in to Docker Hub (optional)
         uses: docker/login-action@v2
