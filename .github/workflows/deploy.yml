@@ -36,14 +36,34 @@ jobs:
         run: |
           docker build -t pandemonium_api .
 
-      # Step 5: Optional - Log in to Docker Hub
+      # Step 5: Test the Docker image locally to verify Mosquitto and the app
+      - name: Run and Test Docker image
+        run: |
+          # Run the container
+          docker run -d --name pandemonium_test -p 8080:8080 -p 1883:1883 \
+            -e NEXTCLOUD_USERNAME=${{ secrets.NEXTCLOUD_USERNAME }} \
+            -e NEXTCLOUD_PASSWORD=${{ secrets.NEXTCLOUD_PASSWORD }} \
+            pandemonium_api
+
+          # Wait for services to start
+          sleep 10
+
+          # Test Mosquitto: Publish and subscribe to a message
+          mosquitto_pub -h localhost -p 1883 -t test/topic -m "Test Message"
+          mosquitto_sub -h localhost -p 1883 -t test/topic -C 1 | grep "Test Message"
+
+          # Stop the container after tests
+          docker stop pandemonium_test
+          docker rm pandemonium_test
+
+      # Step 6: Optional - Log in to Docker Hub
       - name: Log in to Docker Hub (optional)
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 6: Optional - Push Docker image to Docker Hub
+      # Step 7: Optional - Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
         run: |
           docker tag pandemonium_api ${{ secrets.DOCKER_USERNAME }}/pandemonium_api:latest
@@ -88,7 +108,7 @@ jobs:
             docker rm pandemonium_api || true
 
             # Run the new container with environment variables passed
-            docker run -d --name pandemonium_api --network pandemonium_network -p 8080:8080 \
+            docker run -d --name pandemonium_api --network pandemonium_network -p 8080:8080 -p 1883:1883 \
               -e NEXTCLOUD_USERNAME=${{ secrets.NEXTCLOUD_USERNAME }} \
               -e NEXTCLOUD_PASSWORD=${{ secrets.NEXTCLOUD_PASSWORD }} \
               ${{ secrets.DOCKER_USERNAME }}/pandemonium_api:latest
