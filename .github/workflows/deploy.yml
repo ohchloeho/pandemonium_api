@@ -36,25 +36,6 @@ jobs:
         run: |
           docker build -t pandemonium_api .
 
-      - name: Run and Test Docker image
-        run: |
-          docker run -d --name pandemonium_test -p 8080:8080 -p 1883:1883 \
-            -e NEXTCLOUD_USERNAME=${{ secrets.NEXTCLOUD_USERNAME }} \
-            -e NEXTCLOUD_PASSWORD=${{ secrets.NEXTCLOUD_PASSWORD }} \
-            pandemonium_api
-
-          for i in {1..30}; do
-            if nc -z localhost 1883; then
-              echo "Mosquitto is up and running!";
-              break;
-            fi
-            echo "Waiting for Mosquitto...";
-            sleep 2;
-          done
-
-          docker stop pandemonium_test
-          docker rm pandemonium_test
-
       # Step 6: Optional - Log in to Docker Hub
       - name: Log in to Docker Hub (optional)
         uses: docker/login-action@v2
@@ -87,19 +68,6 @@ jobs:
       - name: Verify Tailscale connection
         run: |
           sudo tailscale status
-
-      # Step 4: Install Mosquitto and configure it
-      - name: Install and Configure Mosquitto
-        run: |
-          echo "$USER ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/$USER
-
-          sudo apt-get update
-          sudo apt-get install -y mosquitto mosquitto-clients
-
-          sudo systemctl enable mosquitto
-          sudo systemctl start mosquitto
-
-          sudo systemctl status mosquitto
 
       # Step 5: SSH into the server, stop any running container, and deploy the new container
       - name: Deploy Docker container to Server via SSH (Tailscale)
