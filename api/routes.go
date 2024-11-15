@@ -2,8 +2,8 @@ package api
 
 import (
 	"pandemonium_api/api/handlers"
-	"pandemonium_api/internal/services"
 	"pandemonium_api/api/middlewares"
+	"pandemonium_api/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,11 +19,10 @@ func SetupRouter(db *mongo.Database) *gin.Engine {
 	// Pass the MongoDB database instance to your services
 	projectService := services.NewProjectService(db)
 	projectHandler := handlers.NewProjectHandler(projectService)
-
 	voiceNoteService := services.NewVoiceNoteService(db)
 	voiceNoteHandler := handlers.NewVoiceNoteHandler(voiceNoteService)
 
-	// Define your routes
+	// Routes
 	router.GET("/projects", projectHandler.GetAllProjects)
 	router.GET("/projects/:id", projectHandler.GetProject)
 	router.POST("/projects", projectHandler.CreateProject)
