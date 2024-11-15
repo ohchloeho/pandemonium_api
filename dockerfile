@@ -24,7 +24,8 @@ ENV NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD}
 
 # Install necessary libraries (glibc and others)
 RUN apt-get update && apt-get install -y libc6
-RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mosquitto mosquitto-clients && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Expose the port your app will be listening on
 EXPOSE 1883 8080
@@ -35,7 +36,7 @@ WORKDIR /app
 # Copy the compiled binary from the builder stage
 COPY --from=builder /app/pandemonium_api /app/
 
-CMD ["sh", "-c", "mosquitto -d && /app/pandemonium_api"]
+CMD ["sh", "-c", "mosquitto -c /etc/mosquitto/mosquitto.conf & /app/pandemonium_api"]
 
 
 

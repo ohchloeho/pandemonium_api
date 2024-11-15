@@ -44,7 +44,14 @@ jobs:
             -e NEXTCLOUD_PASSWORD=${{ secrets.NEXTCLOUD_PASSWORD }} \
             pandemonium_api
 
-          sleep 10
+          for i in {1..30}; do
+            if nc -z localhost 1883; then
+              echo "Mosquitto is up and running!";
+              break;
+            fi
+            echo "Waiting for Mosquitto...";
+            sleep 2;
+          done
 
           sudo apt-get update && sudo apt-get install -y mosquitto-clients
 
